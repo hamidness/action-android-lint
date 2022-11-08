@@ -1,4 +1,4 @@
-name: 'AndroidLint to checkstyle converter'
+name: 'AndroidLint report to checkstyle converter'
 description: 'Convert AndroidLint report to checkstyle format'
 author: 'Swisyn'
 
