@@ -21,4 +21,4 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          lint_xml_file: ../lint-results-release.xml
+          lint_xml_file: '../../lint-results-release.xml'
