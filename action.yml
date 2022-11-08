@@ -1,11 +1,16 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'AndroidLint to checkstyle converter'
+description: 'Convert AndroidLint report to checkstyle format'
+author: 'Swisyn'
+
 inputs:
-  milliseconds: # change this
+  lint_xml_file:
+    description: 'Path of Android Lint XML file'
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+
 runs:
   using: 'node16'
   main: 'dist/index.js'
+
+branding:
+  icon: 'smartphone'
+  color: 'green'
