@@ -15,7 +15,7 @@ async function run(): Promise<void> {
         }
 
         if (!fs.existsSync(lintXmlFile)) {
-            core.setFailed("❌ Invalid file specified")
+            core.setFailed(`❌ Invalid file specified. Specified path is ${fs.realpathSync(lintXmlFile)}`)
             return
         }
         core.endGroup()
@@ -23,36 +23,36 @@ async function run(): Promise<void> {
         const workspace: string = process.env[`RUNNER_WORKSPACE`] || "";
         const repoName: string = (process.env[`GITHUB_REPOSITORY`] || "").split('/')[1];
 
-        core.debug("Runner workspace is " + workspace);
-        core.debug("Repo name is " + repoName);
+        core.debug(`Runner workspace is ${workspace}`);
+        core.debug(`Repo name is  ${repoName}`);
 
         core.startGroup(`📦 Process lint report content`)
 
-        let lintXmlFileContents = fs.readFileSync(lintXmlFile, 'utf8');
+        const lintXmlFileContents = fs.readFileSync(lintXmlFile, 'utf8');
 
         parseString(lintXmlFileContents, function (error, result) {
             if (error) {
-                core.setFailed('❌ There was an error when parsing: ' + error);
+                core.setFailed(`❌ There was an error when parsing: ${error}`);
             } else {
                 let xml = '<?xml version="1.0" encoding="utf-8"?>';
                 xml += '\n<checkstyle version="8.0">';
 
-                let issuesCount = result["issues"]["issue"].length
+                const issuesCount = result["issues"]["issue"].length
 
                 core.info(`Retrieved ${issuesCount} issues to process.`)
 
                 for (let i = 0; i < issuesCount; i++) {
-                    let currentObject = result["issues"]["issue"][i];
+                    const currentObject = result["issues"]["issue"][i];
                     for (let key in currentObject) {
                         if (currentObject.hasOwnProperty(key)) {
-                            let issue = currentObject["$"]
-                            let issueMessage = issue.id + ": " + issue.message
-                            let location = currentObject["location"][0]["$"];
-                            xml += '\n<file name="' + escape(location.file.replace(workspace + "/" + repoName, "")) + '">';
-                            xml += '\n<error line="' + escape(location.line) + '" ';
-                            xml += 'column="' + escape(location.column) + '" ';
-                            xml += 'severity="' + escape(issue.severity) + '" ';
-                            xml += 'message="' + escape(issueMessage) + '" ';
+                            const issue = currentObject["$"]
+                            const issueMessage = issue.id + ": " + issue.message
+                            const location = currentObject["location"][0]["$"];
+                            xml += `\n<file name="${escape(location.file.replace(workspace + "/" + repoName, ""))}">`;
+                            xml += `\n<error line="${escape(location.line)}" `;
+                            xml += `column="${escape(location.column)}" `;
+                            xml += `severity="${escape(issue.severity)}" `;
+                            xml += `message="${escape(issueMessage)}" `;
                             xml += '/>';
                             xml += '\n</file>';
                         }
