@@ -59,6 +59,7 @@ function run() {
             core.endGroup();
             core.debug(`Runner workspace is ${runnerWorkspace}`);
             core.debug(`Repo name is  ${repoName}`);
+            core.debug(`File path is  ${fs.realpathSync(lintXmlFile)} and exists? ${fs.existsSync(lintXmlFile)}`);
             core.startGroup(`📦 Process lint report content`);
             const lintXmlFileContents = fs.readFileSync(lintXmlFile, 'utf8');
             (0, xml2js_1.parseString)(lintXmlFileContents, function (error, result) {

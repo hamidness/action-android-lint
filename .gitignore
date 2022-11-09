@@ -100,3 +100,4 @@ lib/**/*
 /.idea/misc.xml
 /.idea/modules.xml
 /.idea/vcs.xml
+/.idea/action-android-lint.iml

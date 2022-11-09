@@ -29,6 +29,7 @@ async function run(): Promise<void> {
 
         core.debug(`Runner workspace is ${runnerWorkspace}`);
         core.debug(`Repo name is  ${repoName}`);
+        core.debug(`File path is  ${fs.realpathSync(lintXmlFile)} and exists? ${fs.existsSync(lintXmlFile)}`);
 
         core.startGroup(`📦 Process lint report content`)
 
