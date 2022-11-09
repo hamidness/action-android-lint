@@ -52,12 +52,12 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             core.startGroup(`📘 Reading input values`);
-            const runnerWorkspace = process.env[`RUNNER_WORKSPACE`] || "";
-            const repoName = (process.env[`GITHUB_REPOSITORY`] || "").split('/')[1];
-            const gitWorkspace = process.env[`GITHUB_WORKSPACE`] || "";
+            const runnerWorkspace = process.env[`RUNNER_WORKSPACE`] || '';
+            const repoName = (process.env[`GITHUB_REPOSITORY`] || '').split('/')[1];
+            const gitWorkspace = process.env[`GITHUB_WORKSPACE`] || '';
             let lintXmlFile = 'lint-results-release.xml'; //core.getInput("lint_xml_file");
             if (!lintXmlFile) {
-                core.setFailed("❌ No lint file specified");
+                core.setFailed('❌ No lint file specified');
                 return;
             }
             lintXmlFile = path.join(gitWorkspace, lintXmlFile);
@@ -75,16 +75,16 @@ function run() {
                 else {
                     let xml = '<?xml version="1.0" encoding="utf-8"?>';
                     xml += '\n<checkstyle version="8.0">';
-                    const issuesCount = result["issues"]["issue"].length;
+                    const issuesCount = result['issues']['issue'].length;
                     core.info(`Retrieved ${issuesCount} issues to process.`);
                     const checkstyleData = [];
                     for (let i = 0; i < issuesCount; i++) {
-                        const currentObject = result["issues"]["issue"][i];
+                        const currentObject = result['issues']['issue'][i];
                         for (let key in currentObject) {
                             if (currentObject.hasOwnProperty(key)) {
-                                const issue = currentObject["$"];
-                                const location = currentObject["location"][0]["$"];
-                                const file = escape(location.file.replace(runnerWorkspace + "/" + repoName, ""));
+                                const issue = currentObject['$'];
+                                const location = currentObject['location'][0]['$'];
+                                const file = escape(location.file.replace(runnerWorkspace + '/' + repoName, ''));
                                 const line = escape(location.line);
                                 const column = escape(location.column);
                                 const severity = escape(issue.severity);
@@ -98,7 +98,7 @@ function run() {
                         r[a.file].push(a);
                         return r;
                     }, Object.create(null));
-                    Object.keys(grouped).forEach((key) => {
+                    Object.keys(grouped).forEach(key => {
                         xml += `\n<file name="${key}">`;
                         grouped[key].forEach((object) => {
                             xml += `\n<error line="${object.line}" column="${object.column}" severity="${object.severity}" message="${object.message}" />`;
