@@ -35,7 +35,7 @@ async function run(): Promise<void> {
     )[1]
     const gitWorkspace = process.env[`GITHUB_WORKSPACE`] || ''
 
-    let lintXmlFile: string = core.getInput("lint_xml_file");
+    let lintXmlFile: string = core.getInput('lint_xml_file') || ''
 
     if (!lintXmlFile) {
       core.setFailed('❌ No lint file specified')

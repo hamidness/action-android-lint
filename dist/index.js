@@ -55,7 +55,7 @@ function run() {
             const runnerWorkspace = process.env[`RUNNER_WORKSPACE`] || '';
             const repoName = (process.env[`GITHUB_REPOSITORY`] || '').split('/')[1];
             const gitWorkspace = process.env[`GITHUB_WORKSPACE`] || '';
-            let lintXmlFile = 'lint-results-release.xml'; //core.getInput("lint_xml_file");
+            let lintXmlFile = core.getInput('lint_xml_file') || '';
             if (!lintXmlFile) {
                 core.setFailed('❌ No lint file specified');
                 return;
