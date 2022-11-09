@@ -26,9 +26,9 @@ async function run(): Promise<void> {
             return
         }
 
-        core.debug(`Runner workspace is ${runnerWorkspace}`);
-        core.debug(`Repo name is  ${repoName}`);
-        core.debug(`File path is  ${fs.realpathSync(lintXmlFile)} and exists? ${fs.existsSync(lintXmlFile)}`);
+        core.info(`Runner workspace is ${runnerWorkspace}`);
+        core.info(`Repo name is  ${repoName}`);
+        core.info(`File path is  ${fs.realpathSync(lintXmlFile)} and exists? ${fs.existsSync(lintXmlFile)}`);
 
         core.endGroup()
 

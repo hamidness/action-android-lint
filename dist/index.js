@@ -56,10 +56,10 @@ function run() {
                 core.setFailed(`❌ Invalid file specified. Specified path is ${fs.realpathSync(lintXmlFile)}`);
                 return;
             }
+            core.info(`Runner workspace is ${runnerWorkspace}`);
+            core.info(`Repo name is  ${repoName}`);
+            core.info(`File path is  ${fs.realpathSync(lintXmlFile)} and exists? ${fs.existsSync(lintXmlFile)}`);
             core.endGroup();
-            core.debug(`Runner workspace is ${runnerWorkspace}`);
-            core.debug(`Repo name is  ${repoName}`);
-            core.debug(`File path is  ${fs.realpathSync(lintXmlFile)} and exists? ${fs.existsSync(lintXmlFile)}`);
             core.startGroup(`📦 Process lint report content`);
             const lintXmlFileContents = fs.readFileSync(lintXmlFile, 'utf8');
             (0, xml2js_1.parseString)(lintXmlFileContents, function (error, result) {
