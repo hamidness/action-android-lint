@@ -39,6 +39,15 @@ const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(5747));
 const path = __importStar(__nccwpck_require__(5622));
 const xml2js_1 = __nccwpck_require__(6189);
+class CheckstyleObject {
+    constructor(file, line, column, severity, message) {
+        this.file = file;
+        this.line = line;
+        this.column = column;
+        this.severity = severity;
+        this.message = message;
+    }
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -46,7 +55,7 @@ function run() {
             const runnerWorkspace = process.env[`RUNNER_WORKSPACE`] || "";
             const repoName = (process.env[`GITHUB_REPOSITORY`] || "").split('/')[1];
             const gitWorkspace = process.env[`GITHUB_WORKSPACE`] || "";
-            let lintXmlFile = core.getInput("lint_xml_file");
+            let lintXmlFile = 'lint-results-release.xml'; //core.getInput("lint_xml_file");
             if (!lintXmlFile) {
                 core.setFailed("❌ No lint file specified");
                 return;
@@ -68,23 +77,34 @@ function run() {
                     xml += '\n<checkstyle version="8.0">';
                     const issuesCount = result["issues"]["issue"].length;
                     core.info(`Retrieved ${issuesCount} issues to process.`);
+                    const checkstyleData = [];
                     for (let i = 0; i < issuesCount; i++) {
                         const currentObject = result["issues"]["issue"][i];
                         for (let key in currentObject) {
                             if (currentObject.hasOwnProperty(key)) {
                                 const issue = currentObject["$"];
-                                const issueMessage = issue.id + ": " + issue.message;
                                 const location = currentObject["location"][0]["$"];
-                                xml += `\n<file name="${escape(location.file.replace(runnerWorkspace + "/" + repoName, ""))}">`;
-                                xml += `\n<error line="${escape(location.line)}" `;
-                                xml += `column="${escape(location.column)}" `;
-                                xml += `severity="${escape(issue.severity)}" `;
-                                xml += `message="${escape(issueMessage)}" `;
-                                xml += '/>';
-                                xml += '\n</file>';
+                                const file = escape(location.file.replace(runnerWorkspace + "/" + repoName, ""));
+                                const line = escape(location.line);
+                                const column = escape(location.column);
+                                const severity = escape(issue.severity);
+                                const message = escape(`${issue.id}: ${issue.message}`);
+                                checkstyleData.push(new CheckstyleObject(file, line, column, severity, message));
                             }
                         }
                     }
+                    let grouped = checkstyleData.reduce(function (r, a) {
+                        r[a.file] = r[a.file] || [];
+                        r[a.file].push(a);
+                        return r;
+                    }, Object.create(null));
+                    Object.keys(grouped).forEach((key) => {
+                        xml += `\n<file name="${key}">`;
+                        grouped[key].forEach((object) => {
+                            xml += `\n<error line="${object.line}" column="${object.column}" severity="${object.severity}" message="${object.message}" />`;
+                        });
+                        xml += '\n</file>';
+                    });
                     xml += '\n</checkstyle>';
                     core.startGroup(`🚀 Checkstyle output is ready to be served!`);
                     core.setOutput('output_checkstyle', xml);
