@@ -84,7 +84,7 @@ function run() {
                             if (currentObject.hasOwnProperty(key)) {
                                 const issue = currentObject['$'];
                                 const location = currentObject['location'][0]['$'];
-                                const file = escape(location.file.replace(runnerWorkspace + '/' + repoName, ''));
+                                const file = escape(location.file.replace(`${runnerWorkspace} /${repoName}`, ''));
                                 const line = escape(location.line);
                                 const column = escape(location.column);
                                 const severity = escape(issue.severity);
@@ -93,7 +93,7 @@ function run() {
                             }
                         }
                     }
-                    let grouped = checkstyleData.reduce(function (r, a) {
+                    const grouped = checkstyleData.reduce(function (r, a) {
                         r[a.file] = r[a.file] || [];
                         r[a.file].push(a);
                         return r;

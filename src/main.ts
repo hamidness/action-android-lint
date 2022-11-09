@@ -79,7 +79,7 @@ async function run(): Promise<void> {
               const issue = currentObject['$']
               const location = currentObject['location'][0]['$']
               const file = escape(
-                location.file.replace(runnerWorkspace + '/' + repoName, '')
+                location.file.replace(`${runnerWorkspace} /${repoName}`, '')
               )
               const line = escape(location.line)
               const column = escape(location.column)
@@ -93,7 +93,7 @@ async function run(): Promise<void> {
           }
         }
 
-        let grouped = checkstyleData.reduce(function (r, a) {
+        const grouped = checkstyleData.reduce(function (r, a) {
           r[a.file] = r[a.file] || []
           r[a.file].push(a)
           return r
