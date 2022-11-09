@@ -60,14 +60,15 @@ function run() {
                 core.setFailed('❌ No lint file specified');
                 return;
             }
-            lintXmlFile = path.join(gitWorkspace, lintXmlFile);
-            if (!fs.existsSync(lintXmlFile)) {
+            let xmlFileDestination = path.join(gitWorkspace, lintXmlFile);
+            if (!fs.existsSync(xmlFileDestination)) {
                 core.setFailed(`❌ Invalid file specified. Specified path is ${fs.realpathSync(lintXmlFile)}`);
                 return;
             }
+            core.debug(`runnerWorkspace is ${runnerWorkspace} and repoName is ${repoName} exists? ${fs.existsSync(path.join(runnerWorkspace, lintXmlFile))} and gitWorkspace is ${gitWorkspace} exists? ${fs.existsSync(xmlFileDestination)}`);
             core.endGroup();
             core.startGroup(`📦 Process lint report content`);
-            const lintXmlFileContents = fs.readFileSync(lintXmlFile, 'utf8');
+            const lintXmlFileContents = fs.readFileSync(xmlFileDestination, 'utf8');
             (0, xml2js_1.parseString)(lintXmlFileContents, function (error, result) {
                 if (error) {
                     core.setFailed(`❌ There was an error when parsing: ${error}`);

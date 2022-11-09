@@ -42,9 +42,9 @@ async function run(): Promise<void> {
       return
     }
 
-    lintXmlFile = path.join(gitWorkspace, lintXmlFile)
+    let xmlFileDestination = path.join(gitWorkspace, lintXmlFile)
 
-    if (!fs.existsSync(lintXmlFile)) {
+    if (!fs.existsSync(xmlFileDestination)) {
       core.setFailed(
         `❌ Invalid file specified. Specified path is ${fs.realpathSync(
           lintXmlFile
@@ -53,11 +53,12 @@ async function run(): Promise<void> {
       return
     }
 
+    core.debug(`runnerWorkspace is ${runnerWorkspace} and repoName is ${repoName} exists? ${fs.existsSync(path.join(runnerWorkspace, lintXmlFile))} and gitWorkspace is ${gitWorkspace} exists? ${fs.existsSync(xmlFileDestination)}`)
     core.endGroup()
 
     core.startGroup(`📦 Process lint report content`)
 
-    const lintXmlFileContents = fs.readFileSync(lintXmlFile, 'utf8')
+    const lintXmlFileContents = fs.readFileSync(xmlFileDestination, 'utf8')
 
     parseString(lintXmlFileContents, function (error, result) {
       if (error) {
