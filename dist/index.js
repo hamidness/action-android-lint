@@ -37,24 +37,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(5747));
+const path = __importStar(__nccwpck_require__(5622));
 const xml2js_1 = __nccwpck_require__(6189);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             core.startGroup(`📘 Reading input values`);
-            const lintXmlFile = core.getInput("lint_xml_file");
+            const runnerWorkspace = process.env[`RUNNER_WORKSPACE`] || "";
+            const repoName = (process.env[`GITHUB_REPOSITORY`] || "").split('/')[1];
+            const gitWorkspace = process.env[`GITHUB_WORKSPACE`] || "";
+            let lintXmlFile = core.getInput("lint_xml_file");
             if (!lintXmlFile) {
                 core.setFailed("❌ No lint file specified");
                 return;
             }
+            lintXmlFile = path.join(gitWorkspace, lintXmlFile);
             if (!fs.existsSync(lintXmlFile)) {
                 core.setFailed(`❌ Invalid file specified. Specified path is ${fs.realpathSync(lintXmlFile)}`);
                 return;
             }
             core.endGroup();
-            const workspace = process.env[`RUNNER_WORKSPACE`] || "";
-            const repoName = (process.env[`GITHUB_REPOSITORY`] || "").split('/')[1];
-            core.debug(`Runner workspace is ${workspace}`);
+            core.debug(`Runner workspace is ${runnerWorkspace}`);
             core.debug(`Repo name is  ${repoName}`);
             core.startGroup(`📦 Process lint report content`);
             const lintXmlFileContents = fs.readFileSync(lintXmlFile, 'utf8');
@@ -74,7 +77,7 @@ function run() {
                                 const issue = currentObject["$"];
                                 const issueMessage = issue.id + ": " + issue.message;
                                 const location = currentObject["location"][0]["$"];
-                                xml += `\n<file name="${escape(location.file.replace(workspace + "/" + repoName, ""))}">`;
+                                xml += `\n<file name="${escape(location.file.replace(runnerWorkspace + "/" + repoName, ""))}">`;
                                 xml += `\n<error line="${escape(location.line)}" `;
                                 xml += `column="${escape(location.column)}" `;
                                 xml += `severity="${escape(issue.severity)}" `;
