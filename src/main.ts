@@ -25,11 +25,12 @@ async function run(): Promise<void> {
             core.setFailed(`❌ Invalid file specified. Specified path is ${fs.realpathSync(lintXmlFile)}`)
             return
         }
-        core.endGroup()
 
         core.debug(`Runner workspace is ${runnerWorkspace}`);
         core.debug(`Repo name is  ${repoName}`);
         core.debug(`File path is  ${fs.realpathSync(lintXmlFile)} and exists? ${fs.existsSync(lintXmlFile)}`);
+
+        core.endGroup()
 
         core.startGroup(`📦 Process lint report content`)
 
