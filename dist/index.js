@@ -89,7 +89,7 @@ function run() {
                                 const line = escape(location.line);
                                 const column = escape(location.column);
                                 const severity = escape(issue.severity);
-                                const message = escape(`${issue.id}: ${issue.message}`);
+                                const message = `${issue.id}: ${issue.message}`;
                                 checkstyleData.push(new CheckstyleObject(file, line, column, severity, message));
                             }
                         }
