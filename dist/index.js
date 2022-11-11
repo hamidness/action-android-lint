@@ -74,7 +74,7 @@ function run() {
                     core.setFailed(`❌ There was an error when parsing: ${error}`);
                 }
                 else {
-                    let xml = '<?xml version="1.0" encoding="utf-8"?>';
+                    let xml = '\n<?xml version="1.0" encoding="utf-8"?>';
                     xml += '\n<checkstyle version="8.0">';
                     const issuesCount = result['issues']['issue'].length;
                     core.info(`Retrieved ${issuesCount} issues to process.`);
@@ -107,8 +107,10 @@ function run() {
                         xml += '\n</file>';
                     });
                     xml += '\n</checkstyle>';
-                    core.startGroup(`🚀 Checkstyle output is ready to be served!`);
-                    core.setOutput('output_checkstyle', xml);
+                    const destinationCheckstylePath = path.join(gitWorkspace, "checkstyle.xml");
+                    fs.writeFileSync(destinationCheckstylePath, xml);
+                    core.startGroup(`🚀 Checkstyle output is ready to be served on ${destinationCheckstylePath}!`);
+                    core.setOutput('output_checkstyle_file', destinationCheckstylePath);
                     core.endGroup();
                 }
             });
