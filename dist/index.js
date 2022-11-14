@@ -35,6 +35,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.escape_html = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(5747));
 const path = __importStar(__nccwpck_require__(5622));
@@ -48,6 +49,14 @@ class CheckstyleObject {
         this.message = message;
     }
 }
+const entityMap = new Map(Object.entries({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': '&quot;',
+    "'": '&#39;',
+    "/": '&#x2F;'
+}));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -89,7 +98,7 @@ function run() {
                                 const line = escape(location.line);
                                 const column = escape(location.column);
                                 const severity = escape(issue.severity);
-                                const message = `${issue.id}: ${issue.message}`;
+                                const message = escape_html(`${issue.id}: ${issue.message}`);
                                 checkstyleData.push(new CheckstyleObject(file, line, column, severity, message));
                             }
                         }
@@ -109,7 +118,7 @@ function run() {
                     xml += '\n</checkstyle>';
                     const destinationCheckstylePath = path.join(gitWorkspace, "checkstyle.xml");
                     fs.writeFileSync(destinationCheckstylePath, xml);
-                    core.startGroup(`🚀 Checkstyle output is ready to be served on ${destinationCheckstylePath}!`);
+                    core.startGroup(`🚀 Checkstyle output is ready to be served on ${destinationCheckstylePath}`);
                     core.setOutput('output_checkstyle_file', destinationCheckstylePath);
                     core.endGroup();
                 }
@@ -121,6 +130,10 @@ function run() {
         }
     });
 }
+function escape_html(source) {
+    return String(source).replace(/[&<>"'\/]/g, (s) => entityMap.get(s));
+}
+exports.escape_html = escape_html;
 run();
 
 

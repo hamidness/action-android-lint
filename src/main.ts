@@ -25,6 +25,15 @@ class CheckstyleObject {
     }
 }
 
+const entityMap = new Map<string, string>(Object.entries({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': '&quot;',
+    "'": '&#39;',
+    "/": '&#x2F;'
+}))
+
 async function run(): Promise<void> {
     try {
         core.startGroup(`📘 Reading input values`)
@@ -85,7 +94,7 @@ async function run(): Promise<void> {
                             const line = escape(location.line)
                             const column = escape(location.column)
                             const severity = escape(issue.severity)
-                            const message = `${issue.id}: ${issue.message}`
+                            const message = escape_html(`${issue.id}: ${issue.message}`)
 
                             checkstyleData.push(
                                 new CheckstyleObject(file, line, column, severity, message)
@@ -113,7 +122,7 @@ async function run(): Promise<void> {
                 const destinationCheckstylePath = path.join(gitWorkspace, "checkstyle.xml")
                 fs.writeFileSync(destinationCheckstylePath, xml)
 
-                core.startGroup(`🚀 Checkstyle output is ready to be served on ${destinationCheckstylePath}!`)
+                core.startGroup(`🚀 Checkstyle output is ready to be served on ${destinationCheckstylePath}`)
                 core.setOutput('output_checkstyle_file', destinationCheckstylePath)
                 core.endGroup()
             }
@@ -121,6 +130,10 @@ async function run(): Promise<void> {
     } catch (error) {
         if (error instanceof Error) core.setFailed(error.message)
     }
+}
+
+export function escape_html(source: string) {
+    return String(source).replace(/[&<>"'\/]/g, (s: string) => entityMap.get(s)!);
 }
 
 run()
