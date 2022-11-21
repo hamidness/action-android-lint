@@ -50,19 +50,24 @@ class CheckstyleObject {
     }
 }
 const entityMap = new Map(Object.entries({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
     '"': '&quot;',
     "'": '&#39;',
-    "/": '&#x2F;'
+    '/': '&#x2F;'
 }));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             core.startGroup(`📘 Reading input values`);
-            const runnerWorkspace = process.env[`RUNNER_WORKSPACE`] || '';
-            const repoName = (process.env[`GITHUB_REPOSITORY`] || '').split('/')[1];
+            const gitServerUrl = process.env[`GITHUB_SERVER_URL`] || '';
+            const gitRepository = process.env[`GITHUB_SERVER_URL`] || '';
+            const runnerWorkspace = process.env[`GITHUB_REPOSITORY`] || '';
+            const repoName = gitRepository.split('/');
+            let organisationName = '';
+            if (repoName.length >= 1)
+                organisationName = repoName[1];
             const gitWorkspace = process.env[`GITHUB_WORKSPACE`] || '';
             let lintXmlFile = core.getInput('lint_xml_file') || '';
             if (!lintXmlFile) {
@@ -74,7 +79,7 @@ function run() {
                 core.setFailed(`❌ Invalid file specified. Specified path is ${fs.realpathSync(lintXmlFile)}`);
                 return;
             }
-            core.debug(`runnerWorkspace is ${runnerWorkspace} and repoName is ${repoName} exists? ${fs.existsSync(path.join(runnerWorkspace, lintXmlFile))} and gitWorkspace is ${gitWorkspace} exists? ${fs.existsSync(xmlFileDestination)}`);
+            core.debug(`runnerWorkspace is ${runnerWorkspace} and repoName is ${repoName} exists? ${fs.existsSync(path.join(runnerWorkspace, lintXmlFile))} and gitWorkspace is ${gitWorkspace} exists? ${fs.existsSync(xmlFileDestination)} organisationName = ${organisationName}, gitServerUrl = ${gitServerUrl}/${runnerWorkspace}`);
             core.endGroup();
             core.startGroup(`📦 Process lint report content`);
             const lintXmlFileContents = fs.readFileSync(xmlFileDestination, 'utf8');
@@ -94,7 +99,7 @@ function run() {
                             if (currentObject.hasOwnProperty(key)) {
                                 const issue = currentObject['$'];
                                 const location = currentObject['location'][0]['$'];
-                                const file = escape(location.file.replace(`${runnerWorkspace} /${repoName}`, ''));
+                                const file = escape(location.file.replace(`${runnerWorkspace}/${organisationName}`, ''));
                                 const line = escape(location.line);
                                 const column = escape(location.column);
                                 const severity = escape(issue.severity);
@@ -111,12 +116,20 @@ function run() {
                     Object.keys(grouped).forEach(key => {
                         xml += `\n<file name="${key}">`;
                         grouped[key].forEach((object) => {
-                            xml += `\n<error line="${object.line}" column="${object.column}" severity="${object.severity}" message="${object.message}" />`;
+                            xml += `\n<error`;
+                            if (object.line !== 'undefined') {
+                                xml += ` line="${object.line}"`;
+                            }
+                            if (object.column !== 'undefined') {
+                                xml += ` column="${object.column}"`;
+                            }
+                            xml += ` severity="${object.severity}"`;
+                            xml += ` message="${object.message}" />`;
                         });
                         xml += '\n</file>';
                     });
                     xml += '\n</checkstyle>';
-                    const destinationCheckstylePath = path.join(gitWorkspace, "checkstyle.xml");
+                    const destinationCheckstylePath = path.join(gitWorkspace, 'checkstyle.xml');
                     fs.writeFileSync(destinationCheckstylePath, xml);
                     core.startGroup(`🚀 Checkstyle output is ready to be served on ${destinationCheckstylePath}`);
                     core.setOutput('output_checkstyle_file', destinationCheckstylePath);
