@@ -69,12 +69,12 @@ function run() {
             if (repoName.length >= 1)
                 organisationName = repoName[1];
             const gitWorkspace = process.env[`GITHUB_WORKSPACE`] || '';
-            let lintXmlFile = core.getInput('lint_xml_file') || '';
+            const lintXmlFile = core.getInput('lint_xml_file') || '';
             if (!lintXmlFile) {
                 core.setFailed('❌ No lint file specified');
                 return;
             }
-            let xmlFileDestination = path.join(gitWorkspace, lintXmlFile);
+            const xmlFileDestination = path.join(gitWorkspace, lintXmlFile);
             if (!fs.existsSync(xmlFileDestination)) {
                 core.setFailed(`❌ Invalid file specified. Specified path is ${fs.realpathSync(lintXmlFile)}`);
                 return;
@@ -95,11 +95,11 @@ function run() {
                     const checkstyleData = [];
                     for (let i = 0; i < issuesCount; i++) {
                         const currentObject = result['issues']['issue'][i];
-                        for (let key in currentObject) {
+                        for (const key in currentObject) {
                             if (currentObject.hasOwnProperty(key)) {
                                 const issue = currentObject['$'];
                                 const severity = escape(issue.severity).toLowerCase();
-                                if (severity == 'error') {
+                                if (severity === 'error') {
                                     const location = currentObject['location'][0]['$'];
                                     const file = escape(location.file.replace(`${runnerWorkspace}/${organisationName}`, ''));
                                     const line = escape(location.line);
@@ -115,21 +115,23 @@ function run() {
                         r[a.file].push(a);
                         return r;
                     }, Object.create(null));
-                    Object.keys(grouped).forEach(key => {
+                    const groupedKeys = Object.keys(grouped);
+                    for (const key of groupedKeys) {
                         xml += `\n<file name="${key}">`;
-                        grouped[key].forEach((object) => {
+                        for (let j = 0; j < groupedKeys.length; ++j) {
+                            const issue = grouped[key][j];
                             xml += `\n<error`;
-                            if (object.line !== 'undefined') {
-                                xml += ` line="${object.line}"`;
+                            if (issue.line !== 'undefined') {
+                                xml += ` line="${issue.line}"`;
                             }
-                            if (object.column !== 'undefined') {
-                                xml += ` column="${object.column}"`;
+                            if (issue.column !== 'undefined') {
+                                xml += ` column="${issue.column}"`;
                             }
-                            xml += ` severity="${object.severity}"`;
-                            xml += ` message="${object.message}" />`;
-                        });
+                            xml += ` severity="${issue.severity}"`;
+                            xml += ` message="${issue.message}" />`;
+                        }
                         xml += '\n</file>';
-                    });
+                    }
                     xml += '\n</checkstyle>';
                     const destinationCheckstylePath = path.join(gitWorkspace, 'checkstyle.xml');
                     fs.writeFileSync(destinationCheckstylePath, xml);
@@ -146,7 +148,7 @@ function run() {
     });
 }
 function escape_html(source) {
-    return String(source).replace(/[&<>"'\/]/g, (s) => entityMap.get(s));
+    return String(source).replace(/[&<>"'/]/g, (s) => entityMap.get(s));
 }
 exports.escape_html = escape_html;
 run();

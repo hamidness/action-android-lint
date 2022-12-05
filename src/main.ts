@@ -44,18 +44,18 @@ async function run(): Promise<void> {
     const gitRepository: string = process.env[`GITHUB_SERVER_URL`] || ''
     const runnerWorkspace: string = process.env[`GITHUB_REPOSITORY`] || ''
     const repoName: string[] = gitRepository.split('/')
-    let organisationName: string = ''
+    let organisationName = ''
     if (repoName.length >= 1) organisationName = repoName[1]
     const gitWorkspace = process.env[`GITHUB_WORKSPACE`] || ''
 
-    let lintXmlFile: string = core.getInput('lint_xml_file') || ''
+    const lintXmlFile = core.getInput('lint_xml_file') || ''
 
     if (!lintXmlFile) {
       core.setFailed('❌ No lint file specified')
       return
     }
 
-    let xmlFileDestination = path.join(gitWorkspace, lintXmlFile)
+    const xmlFileDestination = path.join(gitWorkspace, lintXmlFile)
 
     if (!fs.existsSync(xmlFileDestination)) {
       core.setFailed(
@@ -94,11 +94,11 @@ async function run(): Promise<void> {
 
         for (let i = 0; i < issuesCount; i++) {
           const currentObject = result['issues']['issue'][i]
-          for (let key in currentObject) {
+          for (const key in currentObject) {
             if (currentObject.hasOwnProperty(key)) {
               const issue = currentObject['$']
               const severity = escape(issue.severity).toLowerCase()
-              if (severity == 'error') {
+              if (severity === 'error') {
                 const location = currentObject['location'][0]['$']
                 const file = escape(
                   location.file.replace(
@@ -124,21 +124,24 @@ async function run(): Promise<void> {
           return r
         }, Object.create(null))
 
-        Object.keys(grouped).forEach(key => {
+        const groupedKeys = Object.keys(grouped)
+        for (const key of groupedKeys) {
           xml += `\n<file name="${key}">`
-          grouped[key].forEach((object: CheckstyleObject) => {
+          for (let j = 0; j < groupedKeys.length; ++j) {
+            const issue = grouped[key][j] as CheckstyleObject
             xml += `\n<error`
-            if (object.line !== 'undefined') {
-              xml += ` line="${object.line}"`
+            if (issue.line !== 'undefined') {
+              xml += ` line="${issue.line}"`
             }
-            if (object.column !== 'undefined') {
-              xml += ` column="${object.column}"`
+            if (issue.column !== 'undefined') {
+              xml += ` column="${issue.column}"`
             }
-            xml += ` severity="${object.severity}"`
-            xml += ` message="${object.message}" />`
-          })
+            xml += ` severity="${issue.severity}"`
+            xml += ` message="${issue.message}" />`
+          }
+
           xml += '\n</file>'
-        })
+        }
 
         xml += '\n</checkstyle>'
 
@@ -160,8 +163,8 @@ async function run(): Promise<void> {
   }
 }
 
-export function escape_html(source: string) {
-  return String(source).replace(/[&<>"'\/]/g, (s: string) => entityMap.get(s)!)
+export function escape_html(source: string): string {
+  return String(source).replace(/[&<>"'/]/g, (s: string) => entityMap.get(s)!)
 }
 
 run()
