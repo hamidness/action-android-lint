@@ -97,21 +97,23 @@ async function run(): Promise<void> {
           for (let key in currentObject) {
             if (currentObject.hasOwnProperty(key)) {
               const issue = currentObject['$']
-              const location = currentObject['location'][0]['$']
-              const file = escape(
-                location.file.replace(
-                  `${runnerWorkspace}/${organisationName}`,
-                  ''
+              const severity = escape(issue.severity).toLowerCase()
+              if (severity == 'error') {
+                const location = currentObject['location'][0]['$']
+                const file = escape(
+                  location.file.replace(
+                    `${runnerWorkspace}/${organisationName}`,
+                    ''
+                  )
                 )
-              )
-              const line = escape(location.line)
-              const column = escape(location.column)
-              const severity = escape(issue.severity)
-              const message = escape_html(`${issue.id}: ${issue.message}`)
+                const line = escape(location.line)
+                const column = escape(location.column)
+                const message = escape_html(`${issue.id}: ${issue.message}`)
 
-              checkstyleData.push(
-                new CheckstyleObject(file, line, column, severity, message)
-              )
+                checkstyleData.push(
+                  new CheckstyleObject(file, line, column, severity, message)
+                )
+              }
             }
           }
         }
