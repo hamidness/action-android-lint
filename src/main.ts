@@ -89,7 +89,7 @@ async function run(): Promise<void> {
         let issuesCount = 0
         try {
           issuesCount = result['issues']['issue'].length
-        } catch(e) {
+        } catch (e) {
           issuesCount = 0
         }
 
